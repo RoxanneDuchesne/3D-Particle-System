@@ -13,11 +13,18 @@ class particle
 	glm::vec3 velocity;
 	glm::vec3 position;
 
-public:
-	particle();
+	float lifespan;
+	float rotation;
+	float scale;
 
-	//Function to advance state of particle by time t in ms and force in given direction
-	void advance(float, glm::vec3 = glm::vec3(0.0,0.0,0.0));
+	float elapsed_time = 0;
+
+
+public:
+	particle(glm::vec3 starting_position);
+
+	//Function to update particle by time in ms, returns true if particle is still alive
+	bool update(float t);
 
 	glm::vec3 get_position();
 

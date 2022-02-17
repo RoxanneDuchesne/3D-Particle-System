@@ -4,52 +4,44 @@
 #include "particle.h"
 
 
-particle::particle() 
+particle::particle(glm::vec3 starting_position) 
 {
+	// Set mass to a random number between MIN_MASS and MAX_MASS inclusive
+	mass = rand() % (MAX_MASS - MIN_MASS + 1) + MIN_MASS;
 
-	mass = rand() % (MAX_MASS - MIN_MASS) + MIN_MASS;
+	// Set starting velocity
+	float starting_velocity_x = rand() % (MAX_INIT_VELOCITY_X - MIN_INIT_VELOCITY_X + 1) + MIN_INIT_VELOCITY_X;
+	float starting_velocity_y = rand() % (MAX_INIT_VELOCITY_Y - MIN_INIT_VELOCITY_Y + 1) + MIN_INIT_VELOCITY_Y;
+	float starting_velocity_z = rand() % (MAX_INIT_VELOCITY_Z - MIN_INIT_VELOCITY_Z + 1) + MIN_INIT_VELOCITY_Z;
 
-	glm::vec3 normalized_velocity = glm::normalize(glm::vec3(rand_float(), rand_float(), rand_float()));
-	float velocity_magnitude = MIN_INIT_VELOCITY + rand() % (MAX_INIT_VELOCITY - MIN_INIT_VELOCITY);
+	velocity = glm::vec3(starting_velocity_x, starting_velocity_y, starting_velocity_z);
 
-	velocity = glm::vec3(normalized_velocity.x * velocity_magnitude, normalized_velocity.y * velocity_magnitude, normalized_velocity.z * velocity_magnitude);
-	position = glm::vec3((1 - 2 * rand_float()) * LENGTH, (1.f - 2 * rand_float()) * LENGTH, (1 - 2 * rand_float()) * LENGTH);
+	// Set starting position to mouse position
+	position = starting_position;
+
+	float mass;
+	glm::vec3 velocity;
+	glm::vec3 position;
+
+	float lifespan;
+	float rotation;
+	float scale;
 
 }
 
 //function to advance state by time t in ms
-void particle::advance(float t, glm::vec3 force)
+bool particle::update(float t)
 {
-	//calculating acceleration
-	glm::vec3 acc = glm::vec3(force.x / mass, force.y / mass, force.z /mass);
+	// Calculate effect of gravity
+	velocity.y += GRAVITY * mass * (t / 1000);
 
-	//calculating velocity *
-	velocity = velocity + glm::vec3(acc.x * (t / 1000.0), acc.y * (t / 1000.0), acc.z * (t / 1000.0));
-	
-	// Get vector magnitutde * 
-	if (sqrt(velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z) >= MAX_VELOCITY)
-	{
-		glm::vec3 normalized_velocity = glm::normalize(velocity);
-		velocity = glm::vec3(normalized_velocity.x * MAX_VELOCITY, normalized_velocity.y * MAX_VELOCITY, normalized_velocity.z * MAX_VELOCITY);
-	}
+	// Change Particle Position Based on Velocity
+	position = position + glm::vec3(velocity.x * (t / 1000.0), velocity.y * (t / 1000.0), velocity.z * (t / 1000.0));
 
-	//changing position
-	position = position + glm::vec3(velocity.x * (t/1000.0), velocity.y * (t / 1000.0), velocity.z * (t / 1000.0));
 
-	if(position.x <= -LENGTH)
-		position.x = LENGTH;
-	else if(position.x >= LENGTH)
-		position.x = -LENGTH;
+	elapsed_time += t;
 
-	if(position.y <= -LENGTH)
-		position.y = LENGTH;
-	else if(position.y >= LENGTH)
-		position.y = -LENGTH;
-
-	if(position.z <= -LENGTH)
-		position.z = LENGTH;
-	else if(position.z >= LENGTH)
-		position.z = -LENGTH;
+	return elapsed_time < lifespan;
 }
 
 
@@ -61,6 +53,7 @@ glm::vec3 particle :: get_position()
 {
 	return position;
 }
+
 
 
 float particle::rand_float()

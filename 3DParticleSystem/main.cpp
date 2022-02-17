@@ -3,14 +3,8 @@
 #include <iostream>
 #include <Windows.h>
 #include <stdlib.h>
-
-//Include OpenGL header files, so that we can use OpenGL
-#ifdef __APPLE__
-	#include <OpenGL/OpenGL.h>
-	#include <GLUT/glut.h>
-#else
-	#include <GL/glut.h>
-#endif
+#include <GL/glut.h>
+#include <chrono>
 
 
 #include "particle_system.h"
@@ -18,8 +12,10 @@
 
 using namespace std;
 
-particle_system p(NUMBER_OF_PARTICLES);
-float win_width = 400, win_height = 400;
+particle_system p(INIT_NUMBER_OF_PARTICLES);
+float win_width = 1500, win_height = 1500;
+
+std::chrono::steady_clock::time_point last_tick_ms;
 
 //Called when a key is pressed
 void handle_keypress(unsigned char key, int x, int y)
@@ -48,7 +44,7 @@ void handle_keypress(unsigned char key, int x, int y)
 //Initializes 3D rendering
 void init()
 {
-	glPointSize(3);
+	glPointSize(PARTICLE_SIZE);
 
 	glEnable(GL_POINT_SMOOTH);
 	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
@@ -83,21 +79,35 @@ void handle_resize(int w, int h)
 //Draws the 3D scene
 void draw()
 {
+	//Calculate Delta Time
+
+	auto current_time_ms = std::chrono::high_resolution_clock::now();
+	double delta_time_ms = std::chrono::duration<double, std::milli>(current_time_ms - last_tick_ms).count();
+
 	glLoadIdentity();
+
+	if (delta_time_ms > 10)
+	{
+		last_tick_ms = current_time_ms;
+
+		p.add_particles(1);
+
+		p.advance(delta_time_ms);
+	}
 	
+
 	//Draw particles
 	glPushMatrix();
-		p.advance(DELTA);
-		p.draw();
+	p.draw();
 	glPopMatrix();
 
 	//Draw overlaying quad for trail
 	glColor4f(0, 0, 0, 0.1);
 	glBegin(GL_QUADS);
-		glVertex3f(-LENGTH, -LENGTH, 100);
-		glVertex3f(LENGTH, -LENGTH, 100);
-		glVertex3f(LENGTH, LENGTH, 100);
-		glVertex3f(-LENGTH, LENGTH, 100);
+	glVertex3f(-LENGTH, -LENGTH, 100);
+	glVertex3f(LENGTH, -LENGTH, 100);
+	glVertex3f(LENGTH, LENGTH, 100);
+	glVertex3f(-LENGTH, LENGTH, 100);
 	glEnd();
 
 	glutSwapBuffers();
@@ -107,10 +117,11 @@ void draw()
 
 //Handle mouse movement
 void mouse_movement(int x, int y ){
-	float ww_ratio = float(x)/win_width;
-	float wh_ratio = float(y)/win_height;
 
-	p.set_gravity(glm::vec3((2*ww_ratio-1)*LENGTH, (1-2*wh_ratio)*LENGTH, 0));
+	float mouse_x = float(x) / (win_width / 2) - 1.0;
+	float mouse_y = float(y) / (win_height / 2) - 1.0;
+
+	p.set_mouse_position(glm::vec3(mouse_x * 100, -mouse_y * 100, 100));
 }
 
 
@@ -118,7 +129,8 @@ void mouse_movement(int x, int y ){
 int main(int argc, char** argv)
 {
 	srand(time(0));
-    p.set_gravity();
+
+	last_tick_ms = std::chrono::high_resolution_clock::now();
 
 	//Initialize GLUT
     glutInit(&argc, argv);
@@ -134,7 +146,7 @@ int main(int argc, char** argv)
     glutKeyboardFunc(handle_keypress);
     glutReshapeFunc(handle_resize);
 	glutPassiveMotionFunc(mouse_movement);
-	glutFullScreen();
+	//glutFullScreen();
     
 	glutMainLoop();
     return 0; //This line is never reached

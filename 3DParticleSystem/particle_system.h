@@ -6,7 +6,7 @@
 class particle_system
 {
 	std::vector<particle> particles;
-	glm::vec3 gravity_point;
+	glm::vec3 mouse_position;
 
 public:
 	//construct system given n number of particles
@@ -15,7 +15,7 @@ public:
 	//Function to advance state of particle system by time t in ms
 	void advance(float);
 
-	void set_gravity(glm::vec3 = glm::vec3(0, 0, 0));
+	void set_mouse_position(glm::vec3 = glm::vec3(0, 0, 0));
 
 	bool add_particles(int);
 
