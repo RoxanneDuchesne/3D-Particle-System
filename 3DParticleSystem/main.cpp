@@ -67,9 +67,8 @@ void handle_resize(int w, int h)
 
     //Set the camera perspective
     glLoadIdentity(); //Reset the camera
-	//glOrtho(-LENGTH, LENGTH, -LENGTH, LENGTH, -LENGTH, LENGTH);
-	gluPerspective(90, 1, 0.1f, LENGTH/2);
-
+	glOrtho(-LENGTH, LENGTH, -LENGTH, LENGTH, -LENGTH, LENGTH);
+	
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -102,10 +101,10 @@ void draw()
 	//Draw overlaying quad for trail
 	glColor4f(0, 0, 0, 0.1);
 	glBegin(GL_QUADS);
-	glVertex3f(-LENGTH, -LENGTH, -0.1f);
-	glVertex3f(LENGTH, -LENGTH, -0.1f);
-	glVertex3f(LENGTH, LENGTH, -0.1f);
-	glVertex3f(-LENGTH, LENGTH, -0.1f);
+	glVertex3f(-LENGTH, -LENGTH, 100);
+	glVertex3f(LENGTH, -LENGTH, 100);
+	glVertex3f(LENGTH, LENGTH, 100);
+	glVertex3f(-LENGTH, LENGTH, 100);
 	glEnd();
 
 	glutSwapBuffers();
@@ -119,7 +118,7 @@ void mouse_movement(int x, int y ){
 	float mouse_x = float(x) / (win_width / 2) - 1.0;
 	float mouse_y = float(y) / (win_height / 2) - 1.0;
 
-	p.set_mouse_position(glm::vec3(mouse_x * 100, -mouse_y * 100, -52));
+	p.set_mouse_position(glm::vec3(mouse_x * 100, -mouse_y * 100, 100));
 }
 
 
