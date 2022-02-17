@@ -1,3 +1,8 @@
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+#include "ParticleSystem.h"
+
 #include <windows.h>
 #include <time.h>
 #include <iostream>
@@ -6,13 +11,10 @@
 #include <GL/glut.h>
 #include <chrono>
 
+#include "Constants.h"
 
-#include "particle_system.h"
-#include "constants.h"
 
-using namespace std;
-
-particle_system p(INIT_NUMBER_OF_PARTICLES);
+ParticleSystem p = ParticleSystem();
 float win_width = 1500, win_height = 1500;
 
 std::chrono::steady_clock::time_point last_tick_ms;
@@ -25,11 +27,6 @@ void handle_keypress(unsigned char key, int x, int y)
 	case 'a':
 	case 'A':
 		p.add_particles(10);
-		break;
-	
-	case 'd':
-	case 'D':
-		p.delete_particles(10);
 		break;
 
     case 27:
@@ -70,8 +67,9 @@ void handle_resize(int w, int h)
 
     //Set the camera perspective
     glLoadIdentity(); //Reset the camera
-	glOrtho(-LENGTH, LENGTH, -LENGTH, LENGTH, -LENGTH, LENGTH);
-	
+	//glOrtho(-LENGTH, LENGTH, -LENGTH, LENGTH, -LENGTH, LENGTH);
+	gluPerspective(90, 1, 0.1f, LENGTH/2);
+
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -92,22 +90,22 @@ void draw()
 
 		p.add_particles(1);
 
-		p.advance(delta_time_ms);
+		p.update(delta_time_ms);
 	}
 	
 
 	//Draw particles
 	glPushMatrix();
-	p.draw();
+	p.render();
 	glPopMatrix();
-
+	
 	//Draw overlaying quad for trail
 	glColor4f(0, 0, 0, 0.1);
 	glBegin(GL_QUADS);
-	glVertex3f(-LENGTH, -LENGTH, 100);
-	glVertex3f(LENGTH, -LENGTH, 100);
-	glVertex3f(LENGTH, LENGTH, 100);
-	glVertex3f(-LENGTH, LENGTH, 100);
+	glVertex3f(-LENGTH, -LENGTH, -0.1f);
+	glVertex3f(LENGTH, -LENGTH, -0.1f);
+	glVertex3f(LENGTH, LENGTH, -0.1f);
+	glVertex3f(-LENGTH, LENGTH, -0.1f);
 	glEnd();
 
 	glutSwapBuffers();
@@ -121,7 +119,7 @@ void mouse_movement(int x, int y ){
 	float mouse_x = float(x) / (win_width / 2) - 1.0;
 	float mouse_y = float(y) / (win_height / 2) - 1.0;
 
-	p.set_mouse_position(glm::vec3(mouse_x * 100, -mouse_y * 100, 100));
+	p.set_mouse_position(glm::vec3(mouse_x * 100, -mouse_y * 100, -52));
 }
 
 
@@ -147,7 +145,7 @@ int main(int argc, char** argv)
     glutReshapeFunc(handle_resize);
 	glutPassiveMotionFunc(mouse_movement);
 	//glutFullScreen();
-    
+
 	glutMainLoop();
     return 0; //This line is never reached
 }

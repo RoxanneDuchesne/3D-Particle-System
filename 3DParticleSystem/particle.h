@@ -2,35 +2,33 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <map>
 
-#include "constants.h"
+#include "Constants.h"
 
 
-
-class particle
+class Particle
 {	
+private:
 	float mass;
 	glm::vec3 velocity;
 	glm::vec3 position;
 
-	float lifespan;
-	float rotation;
-	float scale;
-
-	float elapsed_time = 0;
+	float lifespan_ms;
+	float elapsed_time_ms = 0;
 
 
 public:
-	particle(glm::vec3 starting_position);
+	Particle(glm::vec3 starting_position);
 
-	//Function to update particle by time in ms, returns true if particle is still alive
 	bool update(float t);
 
 	glm::vec3 get_position();
+	float get_alpha();
 
 	float rand_float();
 
-	~particle(void);
+	~Particle(void);
 };
 
 
