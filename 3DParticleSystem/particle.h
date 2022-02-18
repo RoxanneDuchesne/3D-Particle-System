@@ -1,11 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <vector>
-#include <map>
-
-#include "Constants.h"
-
+#include "Tuning.h"
+#include <glm.hpp>
 
 class Particle
 {	

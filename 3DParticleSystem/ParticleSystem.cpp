@@ -1,6 +1,5 @@
 #include "ParticleSystem.h"
 #include <GL/glut.h>
-#include <math.h>
 
 ParticleSystem::ParticleSystem(int n)
 {
@@ -17,8 +16,10 @@ void ParticleSystem::update(float time)
 
 	while(it != particles.end())
 	{
+		// Update particle position
 		bool alive = it->update(time);
 
+		// Remove dead particles 
 		if (!alive)
 		{
 			it = particles.erase(it);
